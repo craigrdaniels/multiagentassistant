@@ -1,4 +1,5 @@
 from langchain_core.messages import HumanMessage, AIMessage
+from langchain_core.messages import HumanMessage, AIMessage, ToolMessage, AIMessageChunk
 from langgraph.graph import StateGraph, START
 from langgraph.checkpoint.memory import MemorySaver
 from langchain_core.runnables import RunnableConfig
@@ -14,6 +15,7 @@ from langchain_openai import ChatOpenAI
 from src.tools.datetime_tool import get_datetime
 from src.tools.websearch_tool import websearch
 from src.tools.redditsearch_tool import redditsearch
+from src.tools.gmail_tool import gmail_tool
 
 import datetime as dt
 
@@ -28,10 +30,13 @@ chat_agent = create_react_agent(
     you can call get_datetime({{timezone=timezone}}) or get_datetime({{timezone, fmt}}).
     you can search the web using websearch({{query}}).
     you can search reddit using redditsearch({{query, subreddit}}) or redditsearch({{query}}).""",
+    you can also use gmail_tool({{query}}) to parse the query to another agent to send, read, and delete emails.
+    """,
     tools=[
         get_datetime,
         websearch,
         redditsearch,
+        gmail_tool,
     ],
 )
 
@@ -41,7 +46,7 @@ class Agent:
     async def call_model(self, state: MessagesState):
         config = RunnableConfig(configurable={"thread_id": "1"})
         response = await chat_agent.ainvoke(state, config=config)
-        return {"messages": response["messages"]}
+        return response
 
     async def run(self, *args, **kwargs):
         graph = (
@@ -75,8 +80,10 @@ class Agent:
                     config=config,
                     stream_mode="messages",
                 ):
-                    if isinstance(node_result, AIMessage):
-                        msg = getattr(node_result, "content", None)
+
+                    msg = getattr(node_result, "content", None)
+
+                    if isinstance(node_result, AIMessageChunk):
                         print(msg, end="", flush=True)
 
                         if not msg:
@@ -86,7 +93,7 @@ class Agent:
 
                         if (
                             text_buffer.endswith(("\n", ".", "!", "?"))
-                            or len(text_buffer) > 150
+                            or len(text_buffer) > 256
                         ):
                             speak(text_buffer)
                             text_buffer = ""

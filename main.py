@@ -14,7 +14,6 @@ async def main():
         return
     module = sys.argv[1]
     result = await aura.run_agent(module)
-    print(result)
 
 
 if __name__ == "__main__":
