@@ -1,5 +1,5 @@
 import os
-from langchain_community.tools import RedditSearchSchema
+from langchain_community.tools.reddit_search.tool import RedditSearchSchema
 from langchain_community.tools.reddit_search.tool import RedditSearchRun
 from langchain_community.utilities.reddit_search import RedditSearchAPIWrapper
 
@@ -9,14 +9,21 @@ class Agent:
     Agent to provide reddit search functionality.
     """
 
-    async def run(self, query: str, subreddit: str):
+    async def run(
+        self,
+        query: str,
+        subreddit: str,
+        sort: str = "new",
+        time_filter: str = "all",
+        limit: int = 20,
+    ):
         try:
             search_params = RedditSearchSchema(
                 query=query,
                 subreddit=subreddit,
-                sort="relevance",
-                time_filter="all",
-                limit="20",
+                sort=sort,
+                time_filter=time_filter,
+                limit=str(limit),
             )
 
             search = RedditSearchRun(

@@ -1,4 +1,3 @@
-from langchain_core.messages import HumanMessage, AIMessage
 from langchain_core.messages import HumanMessage, AIMessage, ToolMessage, AIMessageChunk
 from langgraph.graph import StateGraph, START
 from langgraph.checkpoint.memory import MemorySaver
@@ -29,7 +28,7 @@ chat_agent = create_react_agent(
     prompt=f"""Today is {dt.date.today()},You are a voice assistant. Respond to the user's queries in a friendly and helpful, but slightly playful manner. Don't use emojis. Respond in a manner that is best for a text-to-speech agent
     you can call get_datetime({{timezone=timezone}}) or get_datetime({{timezone, fmt}}).
     you can search the web using websearch({{query}}).
-    you can search reddit using redditsearch({{query, subreddit}}) or redditsearch({{query}}).""",
+    you can search reddit - preference this over websearch if searching reddit using redditsearch({{query, sort, time_filter, subreddit, limit}}) or redditsearch({{query}}).
     you can also use gmail_tool({{query}}) to parse the query to another agent to send, read, and delete emails.
     """,
     tools=[
