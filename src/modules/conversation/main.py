@@ -1,8 +1,7 @@
-from langchain_core.messages import HumanMessage, AIMessage, ToolMessage, AIMessageChunk
+from langchain_core.messages import HumanMessage, AIMessageChunk
 from langgraph.graph import StateGraph, START
 from langgraph.checkpoint.memory import MemorySaver
 from langchain_core.runnables import RunnableConfig
-from typing import Dict, List
 
 from langgraph.graph.message import MessagesState
 
@@ -15,6 +14,7 @@ from src.tools.datetime_tool import get_datetime
 from src.tools.websearch_tool import websearch
 from src.tools.redditsearch_tool import redditsearch
 from src.tools.gmail_tool import gmail_tool
+from src.tools.playwrightbrowser_tool import playwrightbrowser_tool
 
 import datetime as dt
 
@@ -30,12 +30,14 @@ chat_agent = create_react_agent(
     you can search the web using websearch({{query}}).
     you can search reddit - preference this over websearch if searching reddit using redditsearch({{query, sort, time_filter, subreddit, limit}}) or redditsearch({{query}}).
     you can also use gmail_tool({{query}}) to parse the query to another agent to send, read, and delete emails.
+    you can browse the web using playwrightbrowser_tool({{query}}) to perform functions related to Playwright browser, such as searching for emails or sending messages.
     """,
     tools=[
         get_datetime,
         websearch,
         redditsearch,
         gmail_tool,
+        playwrightbrowser_tool,
     ],
 )
 
